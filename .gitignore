@@ -1,0 +1,56 @@
+# Ignore build outputs
+bin/
+obj/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Logs
+*.log
+
+# Visual Studio specific
+.vscode/
+.vs/
+
+# Dependency caches
+*.pdb
+*.cache
+*.ilk
+*.aps
+*.ncb
+*.opensdf
+*.sdf
+*.tlog
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+*.pid
+*.svclog
+
+# Package directories
+packages/
+.nuget/
+
+# Generated files
+*.dll
+*.exe
+*.app
+*.so
+*.dylib
+*.pyc
+*.class
+
+# Publish output
+dist/
+
+# Rider IDE files
+.idea/
+
+# OS-specific files
+.DS_Store
+Thumbs.db

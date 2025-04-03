@@ -38,6 +38,25 @@ namespace EventEase.Controllers
         //     return View(venue);
         // }
 
+
+        // GET: Venues/Details/5
+        public async Task<IActionResult> Details(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var venue = await _context.Venues
+                .FirstOrDefaultAsync(m => m.VenueId == id);
+            if (venue == null)
+            {
+                return NotFound();
+            }
+
+            return View(venue);
+        }
+
         // GET: Venues/Create
         public IActionResult Create()
         {

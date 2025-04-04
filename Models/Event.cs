@@ -2,25 +2,28 @@ using System.ComponentModel.DataAnnotations;
 
 namespace EventEase.Models
 {
+    // Models/Event.cs
     public class Event
     {
-        [Key]
         public int EventId { get; set; }
-
+        
         [Required, StringLength(100)]
         public string? EventName { get; set; }
-
+        
         [Required]
+        [Display(Name = "Event Date")]
         public DateTime EventDate { get; set; }
-
+        
         public string? Description { get; set; }
-
-        [StringLength(255)]
+        
+        [Display(Name = "Image URL")]
         public string ImageUrl { get; set; } = "https://via.placeholder.com/300?text=Event+Image";
-
-        public int? VenueId { get; set; }  // Nullable for pre-booking
+        
+        // Foreign key relationship
+        [Display(Name = "Venue")]
+        public int? VenueId { get; set; }
+        
+        // Navigation property
         public Venue? Venue { get; set; }
-
-        public Booking? Booking { get; set; }  // 1:1 relationship
     }
 }

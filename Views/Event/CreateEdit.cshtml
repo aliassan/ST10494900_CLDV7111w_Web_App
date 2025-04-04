@@ -1,0 +1,64 @@
+@model EventEase.Models.Event
+
+@{
+    string formAction = ViewData["FormAction"]?.ToString() ?? "Create";
+    string pageTitle = formAction == "Create" ? "Create Event" : "Edit Event";
+    ViewData["Title"] = pageTitle;
+}
+
+<h1>@pageTitle</h1>
+
+<hr />
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="@formAction">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="EventId" />
+
+            <div class="form-group mb-3">
+                <label asp-for="EventName" class="control-label"></label>
+                <input asp-for="EventName" class="form-control" />
+                <span asp-validation-for="EventName" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="EventDate" class="control-label"></label>
+                <input asp-for="EventDate" type="datetime-local" class="form-control" />
+                <span asp-validation-for="EventDate" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Description" class="control-label"></label>
+                <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="ImageUrl" class="control-label"></label>
+                <input asp-for="ImageUrl" class="form-control" placeholder="https://example.com/image.jpg" />
+                <span asp-validation-for="ImageUrl" class="text-danger"></span>
+                @if (!string.IsNullOrEmpty(Model.ImageUrl) && formAction == "Edit")
+                {
+                    <div class="mt-2">
+                        <img src="@Model.ImageUrl" alt="Event image preview" style="max-height: 150px;" class="img-thumbnail" />
+                    </div>
+                }
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="VenueId" class="control-label"></label>
+                <select asp-for="VenueId" class="form-control" asp-items="ViewBag.VenueId">
+                    <option value="">-- Select Venue --</option>
+                </select>
+                <span asp-validation-for="VenueId" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mt-4">
+                <button type="submit" class="btn btn-primary">
+                    @ViewData["SubmitButtonText"]
+                </button>
+                <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>

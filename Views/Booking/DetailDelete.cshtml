@@ -1,0 +1,66 @@
+@model EventEase.Models.Booking
+
+@{
+    bool isDeleteMode = ViewData["ViewMode"]?.ToString() == "Delete";
+    ViewData["Title"] = isDeleteMode ? "Delete Booking" : "Booking Details";
+}
+
+<div class="container mt-4">
+    <h2>@ViewData["Title"]</h2>
+    <hr />
+
+    <div class="row">
+        <div class="col-md-8">
+            <dl class="row">
+                <dt class="col-sm-3">Booking ID</dt>
+                <dd class="col-sm-9">@Model.BookingId</dd>
+
+                <dt class="col-sm-3">Event</dt>
+                <dd class="col-sm-9">@Model.Event?.EventName</dd>
+
+                <dt class="col-sm-3">Venue</dt>
+                <dd class="col-sm-9">@Model.Venue?.VenueName</dd>
+
+                <dt class="col-sm-3">Booking Date</dt>
+                <dd class="col-sm-9">@Model.BookingDate.ToString("f")</dd>
+            </dl>
+        </div>
+    </div>
+
+    @if (isDeleteMode)
+    {
+        <div class="alert alert-danger mt-4">
+            <h5>Warning!</h5>
+            <p class="mb-0">This action will permanently delete this booking record.</p>
+        </div>
+    }
+
+    <div class="mt-4">
+        @if (isDeleteMode)
+        {
+            <form asp-action="Delete">
+                <input type="hidden" asp-for="BookingId" />
+                <button type="submit" class="btn btn-danger">
+                    <i class="bi bi-trash"></i> Confirm Delete
+                </button>
+                <a asp-action="Index" class="btn btn-secondary">
+                    <i class="bi bi-x-circle"></i> Cancel
+                </a>
+            </form>
+        }
+        else
+        {
+            <div>
+                <a asp-action="Edit" asp-route-id="@Model.BookingId" class="btn btn-warning">
+                    <i class="bi bi-pencil"></i> Edit
+                </a>
+                <a asp-action="Delete" asp-route-id="@Model.BookingId" class="btn btn-danger">
+                    <i class="bi bi-trash"></i> Delete
+                </a>
+                <a asp-action="Index" class="btn btn-secondary">
+                    <i class="bi bi-list-ul"></i> Back to List
+                </a>
+            </div>
+        }
+    </div>
+</div>

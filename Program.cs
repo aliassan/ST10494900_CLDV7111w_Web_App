@@ -11,9 +11,12 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // For Azure AD auth:
+// builder.Services.AddSingleton(x => new BlobServiceClient(
+//     new Uri("https://st10494900.blob.core.windows.net"),
+//     new DefaultAzureCredential()));
 builder.Services.AddSingleton(x => new BlobServiceClient(
-    new Uri("https://st10494900.blob.core.windows.net"),
-    new DefaultAzureCredential()));
+    builder.Configuration.GetValue<string>("AzureBlobStorage:ConnectionString")
+));
 
 builder.Services.AddScoped<IBlobStorageService, BlobStorageService>();
 

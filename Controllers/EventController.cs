@@ -98,11 +98,24 @@ namespace EventEase.Controllers
         // POST: Events/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("EventId,EventName,EventDate,Description,ImageUrl,VenueId")] Event @event)
+        public async Task<IActionResult> Edit(
+            int id, 
+            [Bind("EventId,EventName,EventDate,Description,VenueId")] Event @event
+            , IFormFile? imageFile
+        )
         {
             if (id != @event.EventId)
             {
                 return NotFound();
+            }
+
+            if (imageFile != null && imageFile.Length > 0)
+            {
+                // Upload the image to Azure Blob Storage
+                var blobName = $"events/{Guid.NewGuid().ToString() + Path.GetExtension(imageFile.FileName)}";
+                _logger.LogInformation($"Blob name: {blobName}\n");
+                await _blobStorageService.UploadImageAsync(imageFile, blobName);
+                @event.ImageUrl = blobName;
             }
 
             if (ModelState.IsValid)

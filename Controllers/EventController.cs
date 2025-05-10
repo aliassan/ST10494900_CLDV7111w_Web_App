@@ -77,8 +77,8 @@ namespace EventEase.Controllers
                 // Upload the image to Azure Blob Storage
                 var blobName = $"events/{Guid.NewGuid().ToString() + Path.GetExtension(imageFile.FileName)}";
                 _logger.LogInformation($"Blob name: {blobName}\n");
-                var blobUrl = await _blobStorageService.UploadImageAsync(imageFile, blobName);
-                @event.ImageUrl = blobUrl;
+                /*var blobUrl = */await _blobStorageService.UploadImageAsync(imageFile, blobName);
+                @event.ImageUrl = blobName;
             } else {
                 _logger.LogInformation("Image file is null or empty: {imageFile}", imageFile);
             }
@@ -133,19 +133,54 @@ namespace EventEase.Controllers
         }
 
         // Add this to your Controller
-        [HttpGet("image/{blobName}")]
+        // [HttpGet("image/{blobName}")]
+        // public async Task<IActionResult> GetImage(string blobName)
+        // {
+        //     var containerClient = _blobServiceClient.GetBlobContainerClient("event-ease");
+        //     var blobClient = containerClient.GetBlobClient(blobName);
+
+        //     var stream = new MemoryStream();
+        //     await blobClient.DownloadToAsync(stream);
+        //     stream.Position = 0;
+
+        //     return File(stream, "image/jpeg"); // Adjust content type
+        // }
+
+        [HttpGet("/image/events/{blobName}")]
         public async Task<IActionResult> GetImage(string blobName)
         {
-            var containerClient = _blobServiceClient.GetBlobContainerClient("event-ease");
-            var blobClient = containerClient.GetBlobClient(blobName);
-
-            var stream = new MemoryStream();
-            await blobClient.DownloadToAsync(stream);
-            stream.Position = 0;
-
-            return File(stream, "image/jpeg"); // Adjust content type
+            try 
+            {
+                _logger.LogInformation("Getting image: {blobName}\n", blobName);
+                var containerClient = _blobServiceClient.GetBlobContainerClient("event-ease");
+                var blobClient = containerClient.GetBlobClient($"events/{blobName}");
+                // var blobClient = _containerClient.GetBlobClient(blobName);
+                var stream = new MemoryStream();
+                await blobClient.DownloadToAsync(stream);
+                stream.Position = 0;
+                
+                // Detect content type from extension
+                var contentType = GetContentType(blobName);
+                return File(stream, contentType);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving image");
+                return NotFound();
+            }
         }
 
+        private static string GetContentType(string fileName)
+        {
+            var extension = Path.GetExtension(fileName).ToLowerInvariant();
+            return extension switch
+            {
+                ".jpg" or ".jpeg" => "image/jpeg",
+                ".png" => "image/png",
+                ".gif" => "image/gif",
+                _ => "application/octet-stream"
+            };
+        }
         // GET: Events/Details/5
         // public async Task<IActionResult> Details(int? id)
         // {

@@ -3,16 +3,29 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using EventEase.Models;
 using EventEase.Context;
+using EventEase.Services;
+using Azure.Storage.Blobs;
 
 namespace EventEase.Controllers
 {
     public class EventController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IBlobStorageService _blobStorageService;
+        private readonly BlobServiceClient _blobServiceClient;
+        private readonly ILogger<EventController> _logger;
 
-        public EventController(ApplicationDbContext context)
+        public EventController(
+            ILogger<EventController> logger
+            , ApplicationDbContext context
+            , BlobServiceClient blobServiceClient
+            , IBlobStorageService blobStorageService
+        )
         {
             _context = context;
+            _blobStorageService = blobStorageService;
+            _blobServiceClient = blobServiceClient;
+            _logger = logger;
         }
 
         // GET: Events
@@ -54,8 +67,21 @@ namespace EventEase.Controllers
         // POST: Events/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("EventId,EventName,EventDate,Description,ImageUrl,VenueId")] Event @event)
+        public async Task<IActionResult> Create(
+            [Bind("EventId,EventName,EventDate,Description,VenueId")] Event @event
+            , IFormFile? imageFile
+        )
         {
+            if (imageFile != null && imageFile.Length > 0)
+            {
+                // Upload the image to Azure Blob Storage
+                var blobName = $"events/{Guid.NewGuid().ToString() + Path.GetExtension(imageFile.FileName)}";
+                _logger.LogInformation($"Blob name: {blobName}\n");
+                var blobUrl = await _blobStorageService.UploadImageAsync(imageFile, blobName);
+                @event.ImageUrl = blobUrl;
+            } else {
+                _logger.LogInformation("Image file is null or empty: {imageFile}", imageFile);
+            }
             if (ModelState.IsValid)
             {
                 _context.Add(@event);
@@ -104,6 +130,20 @@ namespace EventEase.Controllers
             ViewData["FormAction"] = "Edit";
             ViewData["SubmitButtonText"] = "Save";
             return View("CreateEdit", @event);
+        }
+
+        // Add this to your Controller
+        [HttpGet("image/{blobName}")]
+        public async Task<IActionResult> GetImage(string blobName)
+        {
+            var containerClient = _blobServiceClient.GetBlobContainerClient("event-ease");
+            var blobClient = containerClient.GetBlobClient(blobName);
+
+            var stream = new MemoryStream();
+            await blobClient.DownloadToAsync(stream);
+            stream.Position = 0;
+
+            return File(stream, "image/jpeg"); // Adjust content type
         }
 
         // GET: Events/Details/5

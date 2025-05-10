@@ -77,7 +77,7 @@ namespace EventEase.Controllers
                 // Upload the image to Azure Blob Storage
                 var blobName = $"events/{Guid.NewGuid().ToString() + Path.GetExtension(imageFile.FileName)}";
                 _logger.LogInformation($"Blob name: {blobName}\n");
-                /*var blobUrl = */await _blobStorageService.UploadImageAsync(imageFile, blobName);
+                await _blobStorageService.UploadImageAsync(imageFile, blobName);
                 @event.ImageUrl = blobName;
             } else {
                 _logger.LogInformation("Image file is null or empty: {imageFile}", imageFile);
@@ -132,20 +132,6 @@ namespace EventEase.Controllers
             return View("CreateEdit", @event);
         }
 
-        // Add this to your Controller
-        // [HttpGet("image/{blobName}")]
-        // public async Task<IActionResult> GetImage(string blobName)
-        // {
-        //     var containerClient = _blobServiceClient.GetBlobContainerClient("event-ease");
-        //     var blobClient = containerClient.GetBlobClient(blobName);
-
-        //     var stream = new MemoryStream();
-        //     await blobClient.DownloadToAsync(stream);
-        //     stream.Position = 0;
-
-        //     return File(stream, "image/jpeg"); // Adjust content type
-        // }
-
         [HttpGet("/image/events/{blobName}")]
         public async Task<IActionResult> GetImage(string blobName)
         {
@@ -154,7 +140,6 @@ namespace EventEase.Controllers
                 _logger.LogInformation("Getting image: {blobName}\n", blobName);
                 var containerClient = _blobServiceClient.GetBlobContainerClient("event-ease");
                 var blobClient = containerClient.GetBlobClient($"events/{blobName}");
-                // var blobClient = _containerClient.GetBlobClient(blobName);
                 var stream = new MemoryStream();
                 await blobClient.DownloadToAsync(stream);
                 stream.Position = 0;
@@ -181,57 +166,6 @@ namespace EventEase.Controllers
                 _ => "application/octet-stream"
             };
         }
-        // GET: Events/Details/5
-        // public async Task<IActionResult> Details(int? id)
-        // {
-        //     if (id == null)
-        //     {
-        //         return NotFound();
-        //     }
-
-        //     var @event = await _context.Events
-        //         .Include(e => e.Venue)
-        //         .FirstOrDefaultAsync(m => m.EventId == id);
-        //     if (@event == null)
-        //     {
-        //         return NotFound();
-        //     }
-
-        //     return View(@event);
-        // }
-
-        // // GET: Events/Delete/5
-        // public async Task<IActionResult> Delete(int? id)
-        // {
-        //     if (id == null)
-        //     {
-        //         return NotFound();
-        //     }
-
-        //     var @event = await _context.Events
-        //         .Include(e => e.Venue)
-        //         .FirstOrDefaultAsync(m => m.EventId == id);
-        //     if (@event == null)
-        //     {
-        //         return NotFound();
-        //     }
-
-        //     return View(@event);
-        // }
-
-        // // POST: Events/Delete/5
-        // [HttpPost, ActionName("Delete")]
-        // [ValidateAntiForgeryToken]
-        // public async Task<IActionResult> DeleteConfirmed(int id)
-        // {
-        //     var @event = await _context.Events.FindAsync(id);
-        //     if (@event != null)
-        //     {
-        //         _context.Events.Remove(@event);
-        //         await _context.SaveChangesAsync();
-        //     }
-        //     return RedirectToAction(nameof(Index));
-        // }
 
         // GET: Events/Details/5
         public async Task<IActionResult> Details(int? id)

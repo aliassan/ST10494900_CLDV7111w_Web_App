@@ -2,7 +2,6 @@ using System.ComponentModel.DataAnnotations;
 
 namespace EventEase.Models
 {
-    // Models/Event.cs
     public class Event
     {
         public int EventId { get; set; }
@@ -11,19 +10,23 @@ namespace EventEase.Models
         public string? EventName { get; set; }
         
         [Required]
-        [Display(Name = "Event Date")]
-        public DateTime EventDate { get; set; }
+        [Display(Name = "Start Time")]
+        public DateTime EventDate { get; set; }  // Renamed for clarity
+        
+        [Required]
+        [Display(Name = "End Time")]
+        public DateTime EndDate { get; set; }     // New property for duration
         
         public string? Description { get; set; }
         
         [Display(Name = "Image URL")]
-        public string ImageUrl { get; set; } = "https://via.placeholder.com/300?text=Event+Image";
+        public string ImageUrl { get; set; } = "https://placehold.co/300?text=Event+Image";
         
-        // Foreign key relationship
+        // Foreign key relationship (unchanged)
         [Display(Name = "Venue")]
         public int? VenueId { get; set; }
         
-        // Navigation property
+        // Navigation property (unchanged)
         public Venue? Venue { get; set; }
     }
 }

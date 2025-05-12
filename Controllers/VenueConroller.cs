@@ -161,6 +161,16 @@ namespace EventEase.Controllers
                 return NotFound();
             }
 
+            // Check for existing bookings by querying the Bookings table
+            bool hasBookings = await _context.Bookings
+                .AnyAsync(b => b.VenueId == id);
+
+            if (hasBookings)
+            {
+                ViewData["ErrorMessage"] = "This venue cannot be deleted because it has existing bookings. " + 
+                                        "Please cancel all bookings first.";
+            }
+
             ViewData["ViewMode"] = "Delete";
             return View("DetailDelete", venue);
         }
@@ -170,13 +180,49 @@ namespace EventEase.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var venue = await _context.Venues.FindAsync(id);
-            if (venue != null)
+            // First check for bookings
+            bool hasBookings = await _context.Bookings
+                .AnyAsync(b => b.VenueId == id);
+                
+            if (hasBookings)
             {
+                TempData["ErrorMessage"] = "Cannot delete venue with existing bookings.";
+                return RedirectToAction(nameof(Delete), new { id });
+            }
+
+            var venue = await _context.Venues.FindAsync(id);
+
+            if (venue == null)
+            {
+                return NotFound();
+            }
+
+            try
+            {
+
                 _context.Venues.Remove(venue);
                 await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
             }
-            return RedirectToAction(nameof(Index));
+            catch (DbUpdateException)
+            {
+                // Handle the exception if needed
+                TempData["ErrorMessage"] = "An error occurred while deleting the venue.";
+                return RedirectToAction(nameof(Delete), new { id });
+            }
+            catch (Exception)
+            {
+                // Handle the exception if needed
+                TempData["ErrorMessage"] = "An unexpected error occurred.";
+                return RedirectToAction(nameof(Delete), new { id });
+            }
+            
+
+            // if (venue != null)
+            // {
+            //     _context.Venues.Remove(venue);
+            //     await _context.SaveChangesAsync();
+            // }
         }
 
         private bool VenueExists(int id)

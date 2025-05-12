@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using EventEase.Models;
 using EventEase.Context;
+using EventEase.Services;
 
 namespace EventEase.Controllers
 {
@@ -12,10 +13,17 @@ namespace EventEase.Controllers
 
         private readonly ILogger<HomeController> _logger;
 
-        public BookingController(ApplicationDbContext context, ILogger<HomeController> logger)
+        private readonly IVenueAvailabilityService _venueAvailabilityService;
+
+        public BookingController(
+            ApplicationDbContext context, 
+            ILogger<HomeController> logger,
+            IVenueAvailabilityService venueAvailabilityService
+        )
         {
             _logger = logger;
             _context = context;
+            _venueAvailabilityService = venueAvailabilityService;
         }
 
         // GET: Bookings
@@ -63,6 +71,21 @@ namespace EventEase.Controllers
                 "\nCreating booking with BookingId: {BookingId}, EventId: {EventId}, VenueId: {VenueId}, Date: {Date}\n", 
                 booking.BookingId, booking.EventId, booking.VenueId, booking.BookingDate
             );
+
+            var eventToBook = await _context.Events
+                .FirstOrDefaultAsync(e => e.EventId == booking.EventId);
+
+            if (eventToBook == null)
+            {
+                return NotFound();
+            }
+
+            // Check venue availability for the event's time slot
+            if (!await _venueAvailabilityService.IsVenueAvailableAsync(
+                booking.VenueId, eventToBook.EventDate, eventToBook.EndDate))
+            {
+                ModelState.AddModelError("", "Venue is already booked for this event's time slot.");
+            }
             if (ModelState.IsValid)
             {
                 _logger.LogInformation

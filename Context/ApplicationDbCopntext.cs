@@ -11,6 +11,7 @@ namespace EventEase.Context
         public DbSet<Venue> Venues { get; set; }
         public DbSet<Event> Events { get; set; }
         public DbSet<Booking> Bookings { get; set; }
+        public virtual DbSet<VenueAvailability> VenueAvailability { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -30,5 +31,13 @@ namespace EventEase.Context
                 new Event { EventId = 2, EventName = "Music Festival", EventDate = DateTime.Now.AddDays(60), Description = "Live bands and performances" }
             );
         }
+    }
+
+    [Keyless]
+    public class VenueAvailability
+    {
+        public int VenueId { get; set; }
+        public DateTime StartTime { get; set; }
+        public DateTime EndTime { get; set; }
     }
 }

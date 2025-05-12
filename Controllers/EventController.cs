@@ -41,7 +41,12 @@ namespace EventEase.Controllers
             ViewData["VenueId"] = new SelectList(_context.Venues, "VenueId", "VenueName");
             ViewData["FormAction"] = "Create";
             ViewData["SubmitButtonText"] = "Create";
-            return View("CreateEdit", new Event { EventDate = DateTime.Now.AddDays(1) });
+            return View(
+                "CreateEdit", 
+                new Event { 
+                    EventDate = DateTime.Now.AddDays(1),  
+                    EndDate = DateTime.Now.AddDays(1).AddHours(2) // Default to 2 hours later
+                });
         }
 
         // GET: Events/Edit/5
@@ -68,7 +73,7 @@ namespace EventEase.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(
-            [Bind("EventId,EventName,EventDate,Description,VenueId")] Event @event
+            [Bind("EventId,EventName,EventDate,EndDate,Description,VenueId")] Event @event
             , IFormFile? imageFile
         )
         {
@@ -100,7 +105,7 @@ namespace EventEase.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(
             int id, 
-            [Bind("EventId,EventName,EventDate,Description,VenueId")] Event @event
+            [Bind("EventId,EventName,EventDate,EndDate,Description,VenueId")] Event @event
             , IFormFile? imageFile
         )
         {

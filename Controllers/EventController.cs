@@ -207,6 +207,27 @@ namespace EventEase.Controllers
         }
 
         // GET: Events/Delete/5
+        // public async Task<IActionResult> Delete(int? id)
+        // {
+        //     if (id == null)
+        //     {
+        //         return NotFound();
+        //     }
+
+        //     var @event = await _context.Events
+        //         .Include(e => e.Venue)
+        //         .FirstOrDefaultAsync(m => m.EventId == id);
+                
+        //     if (@event == null)
+        //     {
+        //         return NotFound();
+        //     }
+
+        //     ViewData["ViewMode"] = "Delete";
+        //     return View("DetailDelete", @event);
+        // }
+
+        // GET: Events/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -223,6 +244,16 @@ namespace EventEase.Controllers
                 return NotFound();
             }
 
+            // Check for existing bookings by querying the Bookings table
+            bool hasBookings = await _context.Bookings
+                .AnyAsync(b => b.EventId == id);
+                
+            if (hasBookings)
+            {
+                ViewData["ErrorMessage"] = "This event cannot be deleted because it has existing bookings. " + 
+                                        "Please cancel all bookings first.";
+            }
+
             ViewData["ViewMode"] = "Delete";
             return View("DetailDelete", @event);
         }
@@ -232,14 +263,58 @@ namespace EventEase.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            // First check for bookings
+            bool hasBookings = await _context.Bookings
+                .AnyAsync(b => b.EventId == id);
+                
+            if (hasBookings)
+            {
+                TempData["ErrorMessage"] = "Cannot delete event with existing bookings.";
+                return RedirectToAction(nameof(Delete), new { id });
+            }
+
             var @event = await _context.Events.FindAsync(id);
-            if (@event != null)
+            if (@event == null)
+            {
+                return NotFound();
+            }
+
+            try
             {
                 _context.Events.Remove(@event);
                 await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Event deleted successfully.";
+                return RedirectToAction(nameof(Index));
             }
-            return RedirectToAction(nameof(Index));
+            catch (DbUpdateException ex)
+            {
+                // Log the error (in real application)
+                // _logger.LogError(ex, "Error deleting event");
+
+                TempData["ErrorMessage"] = "An error occurred while deleting the event. " +
+                                        "It may have associated bookings that prevent deletion.";
+                return RedirectToAction(nameof(Delete), new { id });
+            }
+            catch (Exception ex)
+            {
+                // Catch any other unexpected errors
+                TempData["ErrorMessage"] = "An unexpected error occurred while deleting the event.";
+                return RedirectToAction(nameof(Delete), new { id });
+            }
         }
+        // // POST: Events/Delete/5
+        // [HttpPost, ActionName("Delete")]
+        // [ValidateAntiForgeryToken]
+        // public async Task<IActionResult> DeleteConfirmed(int id)
+        // {
+        //     var @event = await _context.Events.FindAsync(id);
+        //     if (@event != null)
+        //     {
+        //         _context.Events.Remove(@event);
+        //         await _context.SaveChangesAsync();
+        //     }
+        //     return RedirectToAction(nameof(Index));
+        // }
 
         private bool EventExists(int id)
         {

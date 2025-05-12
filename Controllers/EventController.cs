@@ -205,28 +205,7 @@ namespace EventEase.Controllers
             ViewData["ViewMode"] = "Details";
             return View("DetailDelete", @event);
         }
-
-        // GET: Events/Delete/5
-        // public async Task<IActionResult> Delete(int? id)
-        // {
-        //     if (id == null)
-        //     {
-        //         return NotFound();
-        //     }
-
-        //     var @event = await _context.Events
-        //         .Include(e => e.Venue)
-        //         .FirstOrDefaultAsync(m => m.EventId == id);
-                
-        //     if (@event == null)
-        //     {
-        //         return NotFound();
-        //     }
-
-        //     ViewData["ViewMode"] = "Delete";
-        //     return View("DetailDelete", @event);
-        // }
-
+        
         // GET: Events/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
@@ -286,35 +265,19 @@ namespace EventEase.Controllers
                 TempData["SuccessMessage"] = "Event deleted successfully.";
                 return RedirectToAction(nameof(Index));
             }
-            catch (DbUpdateException ex)
+            catch (DbUpdateException)
             {
-                // Log the error (in real application)
-                // _logger.LogError(ex, "Error deleting event");
-
                 TempData["ErrorMessage"] = "An error occurred while deleting the event. " +
                                         "It may have associated bookings that prevent deletion.";
                 return RedirectToAction(nameof(Delete), new { id });
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // Catch any other unexpected errors
                 TempData["ErrorMessage"] = "An unexpected error occurred while deleting the event.";
                 return RedirectToAction(nameof(Delete), new { id });
             }
         }
-        // // POST: Events/Delete/5
-        // [HttpPost, ActionName("Delete")]
-        // [ValidateAntiForgeryToken]
-        // public async Task<IActionResult> DeleteConfirmed(int id)
-        // {
-        //     var @event = await _context.Events.FindAsync(id);
-        //     if (@event != null)
-        //     {
-        //         _context.Events.Remove(@event);
-        //         await _context.SaveChangesAsync();
-        //     }
-        //     return RedirectToAction(nameof(Index));
-        // }
 
         private bool EventExists(int id)
         {

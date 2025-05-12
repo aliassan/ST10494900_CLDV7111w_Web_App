@@ -65,14 +65,6 @@
         </div>
     </div>
 
-    @* @if (isDeleteMode)
-    {
-        <div class="alert alert-danger mt-4">
-            <h5>Warning!</h5>
-            <p class="mb-0">This action will permanently delete the event. Associated bookings will also be removed.</p>
-        </div>
-    } *@
-
     @if (isDeleteMode)
     {
         <div class="alert @(ViewData["ErrorMessage"] == null ? "alert-warning" : "alert-danger") mt-4">
@@ -93,15 +85,6 @@
     <div class="mt-4">
         @if (isDeleteMode)
         {
-            @* <form asp-action="Delete">
-                <input type="hidden" asp-for="EventId" />
-                <button type="submit" class="btn btn-danger">
-                    <i class="bi bi-trash"></i> Confirm Delete
-                </button>
-                <a asp-action="Index" class="btn btn-secondary">
-                    <i class="bi bi-x-circle"></i> Cancel
-                </a>
-            </form> *@
             <form asp-action="Delete">
                 <input type="hidden" asp-for="EventId" />
                 <button type="submit" class="btn btn-danger" @(ViewData["ErrorMessage"] != null ? "disabled" : "")>

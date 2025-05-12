@@ -1,6 +1,7 @@
 @model EventEase.Models.Venue
 
 @{
+    string formAction = ViewData["FormAction"]?.ToString() ?? "Create";
     string pageTitle = ((string?)ViewData["FormAction"] ?? string.Empty) == "Create" ? "Create Venue" : "Edit Venue";
     ViewData["Title"] = pageTitle;
 }
@@ -10,7 +11,7 @@
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="@ViewData["FormAction"]">
+        <form asp-action="@ViewData["FormAction"]" enctype="multipart/form-data" method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="VenueId" />
 
@@ -32,7 +33,7 @@
                 <span asp-validation-for="Capacity" class="text-danger"></span>
             </div>
 
-            <div class="form-group">
+            @* <div class="form-group">
                 <label asp-for="ImageUrl" class="control-label"></label>
                 <input asp-for="ImageUrl" class="form-control" placeholder="https://via.placeholder.com/300?text=Venue+Image" />
                 <span asp-validation-for="ImageUrl" class="text-danger"></span>
@@ -40,6 +41,18 @@
                 {
                     <div class="mt-2">
                         <img src="@Model.ImageUrl" alt="Venue Preview" style="max-height: 150px;" class="img-thumbnail" />
+                    </div>
+                }
+            </div> *@
+
+            <div class="form-group mb-3">
+                <label asp-for="ImageUrl" class="control-label">Event Image</label>
+                <input type="file" name="imageFile" class="form-control" accept="image/*" />
+                <span asp-validation-for="ImageUrl" class="text-danger"></span>
+                @if (!string.IsNullOrEmpty(Model.ImageUrl) && formAction == "Edit")
+                {
+                    <div class="mt-2">
+                        <img src="/image/@Model.ImageUrl" style="max-height: 150px;" class="img-thumbnail" />
                     </div>
                 }
             </div>

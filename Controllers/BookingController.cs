@@ -27,13 +27,39 @@ namespace EventEase.Controllers
         }
 
         // GET: Bookings
-        public async Task<IActionResult> Index()
+        // public async Task<IActionResult> Index()
+        // {
+        //     var bookings = await _context.Bookings
+        //         .Include(b => b.Event)
+        //         .Include(b => b.Venue)
+        //         .ToListAsync();
+        //     return View(bookings);
+        // }
+
+        public async Task<IActionResult> Index(string searchString)
         {
-            var bookings = await _context.Bookings
-                .Include(b => b.Event)
-                .Include(b => b.Venue)
-                .ToListAsync();
-            return View(bookings);
+            var bookings = _context.Bookings
+                .Include(b => b.Event)  // Include Event for name search
+                .Include(b => b.Venue)  // Include Venue if you want to display it
+                .AsQueryable();
+
+            // In your controller
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                if (int.TryParse(searchString, out int bookingId))
+                {
+                    bookings = bookings.Where(b => b.BookingId == bookingId);
+                }
+                else
+                {
+                    // Recommended database-efficient version
+                    bookings = bookings.Where(b => 
+                        EF.Functions.Like(b.Event.EventName, $"%{searchString}%")
+                    );
+                }
+            }
+
+            return View(await bookings.ToListAsync());
         }
 
         // GET: Bookings/Create

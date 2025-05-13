@@ -1,4 +1,5 @@
-@model IEnumerable<EventEase.Models.Booking>
+@* @model IEnumerable<EventEase.Models.Booking> *@
+@model IEnumerable<BookingDetail>
 
 @{
     ViewData["Title"] = "Bookings";
@@ -43,8 +44,8 @@
             {
                 <tr>
                     <td>@Html.DisplayFor(modelItem => item.BookingId)</td>
-                    <td>@item.Event?.EventName</td>
-                    <td>@item.Venue?.VenueName</td>
+                    <td>@item.EventName</td>
+                    <td>@item.VenueName</td>
                     <td>@item.BookingDate.ToString("g")</td>
                     <td>
                         <div class="btn-group float-end" role="group">

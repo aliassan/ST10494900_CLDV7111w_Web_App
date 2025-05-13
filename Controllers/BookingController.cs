@@ -36,30 +36,55 @@ namespace EventEase.Controllers
         //     return View(bookings);
         // }
 
+        // public async Task<IActionResult> Index(string searchString)
+        // {
+        //     var bookings = _context.Bookings
+        //         .Include(b => b.Event)  // Include Event for name search
+        //         .Include(b => b.Venue)  // Include Venue if you want to display it
+        //         .AsQueryable();
+
+        //     // In your controller
+        //     if (!string.IsNullOrEmpty(searchString))
+        //     {
+        //         if (int.TryParse(searchString, out int bookingId))
+        //         {
+        //             bookings = bookings.Where(b => b.BookingId == bookingId);
+        //         }
+        //         else
+        //         {
+        //             // Recommended database-efficient version
+        //             bookings = bookings.Where(b => 
+        //                 EF.Functions.Like(b.Event.EventName, $"%{searchString}%")
+        //             );
+        //         }
+        //     }
+
+        //     return View(await bookings.ToListAsync());
+        // }
+
+        // BookingController.cs
         public async Task<IActionResult> Index(string searchString)
         {
-            var bookings = _context.Bookings
-                .Include(b => b.Event)  // Include Event for name search
-                .Include(b => b.Venue)  // Include Venue if you want to display it
-                .AsQueryable();
+            var query = _context.BookingDetails.AsQueryable();
 
-            // In your controller
             if (!string.IsNullOrEmpty(searchString))
             {
                 if (int.TryParse(searchString, out int bookingId))
                 {
-                    bookings = bookings.Where(b => b.BookingId == bookingId);
+                    // Search by BookingId (exact match)
+                    query = query.Where(b => b.BookingId == bookingId);
                 }
                 else
                 {
-                    // Recommended database-efficient version
-                    bookings = bookings.Where(b => 
-                        EF.Functions.Like(b.Event.EventName, $"%{searchString}%")
+                    // Search by EventName (contains, case-insensitive)
+                    query = query.Where(b => 
+                        EF.Functions.Like(b.EventName, $"%{searchString}%")
                     );
                 }
             }
 
-            return View(await bookings.ToListAsync());
+            var bookings = await query.OrderBy(b => b.EventDate).ToListAsync();
+            return View(bookings);
         }
 
         // GET: Bookings/Create

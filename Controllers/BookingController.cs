@@ -136,14 +136,8 @@ namespace EventEase.Controllers
                 }
         
             }
-            // If we got this far, something failed; redisplay form
+            
             // Re-populate the dropdown lists
-            // to ensure they are available for the user to select from
-            // when the form is redisplayed
-            // This is important for the user experience
-            // and to avoid model binding issues
-            // when the form is redisplayedues
-
             ViewData["EventId"] = new SelectList(_context.Events, "EventId", "EventName", booking.EventId);
             ViewData["VenueId"] = new SelectList(_context.Venues, "VenueId", "VenueName", booking.VenueId);
             ViewData["FormAction"] = "Create";

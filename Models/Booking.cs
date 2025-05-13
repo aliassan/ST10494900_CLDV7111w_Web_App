@@ -20,7 +20,7 @@ namespace EventEase.Models
         public int VenueId { get; set; }
 
         // Navigation Properties
-        public required Event Event { get; set; }
-        public required Venue Venue { get; set; }
+        public Event? Event { get; set; }
+        public Venue? Venue { get; set; }
     }
 }

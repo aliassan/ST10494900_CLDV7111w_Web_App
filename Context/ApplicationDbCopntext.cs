@@ -12,6 +12,8 @@ namespace EventEase.Context
         public DbSet<Event> Events { get; set; }
         public DbSet<Booking> Bookings { get; set; }
         public virtual DbSet<VenueAvailability> VenueAvailability { get; set; }
+        public virtual DbSet<BookingDetail> BookingDetails { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -19,6 +21,12 @@ namespace EventEase.Context
             modelBuilder.Entity<Booking>()
                 .HasIndex(b => b.EventId)
                 .IsUnique();
+
+            modelBuilder.Entity<BookingDetail>(entity => 
+            {
+                entity.ToView("BookingDetails");
+                entity.HasNoKey();
+            });
 
             // Seed initial data
             modelBuilder.Entity<Venue>().HasData(

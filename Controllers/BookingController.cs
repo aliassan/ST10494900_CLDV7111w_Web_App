@@ -65,26 +65,35 @@ namespace EventEase.Controllers
         // BookingController.cs
         public async Task<IActionResult> Index(string searchString)
         {
-            var query = _context.BookingDetails.AsQueryable();
+            try {
+                var query = _context.BookingDetails.AsQueryable();
 
-            if (!string.IsNullOrEmpty(searchString))
+                if (!string.IsNullOrEmpty(searchString))
+                {
+                    if (int.TryParse(searchString, out int bookingId))
+                    {
+                        // Search by BookingId (exact match)
+                        query = query.Where(b => b.BookingId == bookingId);
+                    }
+                    else
+                    {
+                        // Search by EventName (contains, case-insensitive)
+                        query = query.Where(b => 
+                            EF.Functions.Like(b.EventName, $"%{searchString}%")
+                        );
+                    }
+                }
+
+                var bookings = await query.OrderBy(b => b.EventDate).ToListAsync();
+                return View(bookings);
+            } 
+            catch (Exception ex)
             {
-                if (int.TryParse(searchString, out int bookingId))
-                {
-                    // Search by BookingId (exact match)
-                    query = query.Where(b => b.BookingId == bookingId);
-                }
-                else
-                {
-                    // Search by EventName (contains, case-insensitive)
-                    query = query.Where(b => 
-                        EF.Functions.Like(b.EventName, $"%{searchString}%")
-                    );
-                }
+                _logger.LogError(ex, "An error occurred while fetching bookings.");
+                TempData["ErrorMessage"] = "Failed to load bookings. Please try again later.";
+                return View(new List<BookingDetail>());
             }
 
-            var bookings = await query.OrderBy(b => b.EventDate).ToListAsync();
-            return View(bookings);
         }
 
         // GET: Bookings/Create

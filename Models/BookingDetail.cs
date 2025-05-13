@@ -15,14 +15,14 @@ public class BookingDetail
     public required string EventName { get; set; }
     public DateTime EventDate { get; set; }
     public DateTime EndDate { get; set; }
-    public required string EventDescription { get; set; }
-    public required string EventImageUrl { get; set; }
+    public string? EventDescription { get; set; }
+    public string? EventImageUrl { get; set; }
     
     // Venue Info
     public int VenueId { get; set; }
     public required string VenueName { get; set; }
     public required string Location { get; set; }
     public int Capacity { get; set; }
-    public required string VenueImageUrl { get; set; }
+    public string? VenueImageUrl { get; set; }
 }
 }

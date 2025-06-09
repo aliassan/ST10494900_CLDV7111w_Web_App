@@ -199,6 +199,11 @@ namespace EventEase.Controllers
 
             try
             {
+                // Delete the blob if exists
+                if (!string.IsNullOrEmpty(venue.ImageUrl))
+                {
+                    await _blobStorageService.DeleteImageAsync(venue.ImageUrl);
+                }
 
                 _context.Venues.Remove(venue);
                 await _context.SaveChangesAsync();

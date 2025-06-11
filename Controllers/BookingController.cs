@@ -63,27 +63,97 @@ namespace EventEase.Controllers
         // }
 
         // BookingController.cs
-        public async Task<IActionResult> Index(string searchString)
+        // public async Task<IActionResult> Index(string searchString)
+        // {
+        //     try {
+        //         var query = _context.BookingDetails.AsQueryable();
+
+        //         if (!string.IsNullOrEmpty(searchString))
+        //         {
+        //             if (int.TryParse(searchString, out int bookingId))
+        //             {
+        //                 // Search by BookingId (exact match)
+        //                 query = query.Where(b => b.BookingId == bookingId);
+        //             }
+        //             else
+        //             {
+        //                 // Search by EventName (contains, case-insensitive)
+        //                 query = query.Where(b => 
+        //                     EF.Functions.Like(b.EventName, $"%{searchString}%")
+        //                 );
+        //             }
+        //         }
+
+        //         var bookings = await query.OrderBy(b => b.EventDate).ToListAsync();
+        //         return View(bookings);
+        //     } 
+        //     catch (Exception ex)
+        //     {
+        //         _logger.LogError(ex, "An error occurred while fetching bookings.");
+        //         TempData["ErrorMessage"] = "Failed to load bookings. Please try again later.";
+        //         return View(new List<BookingDetail>());
+        //     }
+
+        // }
+
+        public async Task<IActionResult> Index(
+            string searchString,
+            int? eventTypeId,
+            DateTime? fromDate,
+            DateTime? toDate,
+            bool? availableOnly)
         {
-            try {
+            try 
+            {
                 var query = _context.BookingDetails.AsQueryable();
 
+                // Original search functionality
                 if (!string.IsNullOrEmpty(searchString))
                 {
                     if (int.TryParse(searchString, out int bookingId))
                     {
-                        // Search by BookingId (exact match)
                         query = query.Where(b => b.BookingId == bookingId);
                     }
                     else
                     {
-                        // Search by EventName (contains, case-insensitive)
                         query = query.Where(b => 
                             EF.Functions.Like(b.EventName, $"%{searchString}%")
                         );
                     }
                 }
 
+                // New filters
+                if (eventTypeId.HasValue)
+                {
+                    query = query.Where(b => b.EventTypeId == eventTypeId);
+                }
+
+                if (fromDate.HasValue)
+                {
+                    query = query.Where(b => b.EventDate >= fromDate);
+                }
+
+                if (toDate.HasValue)
+                {
+                    query = query.Where(b => b.EndDate <= toDate);
+                }
+
+                if (availableOnly ?? false)
+                {
+                    query = query.Where(b => b.IsAvailable);
+                }
+
+                // Pass filter values to view to maintain state
+                ViewBag.CurrentFilters = new {
+                    SearchString = searchString,
+                    EventTypeId = eventTypeId,
+                    FromDate = fromDate?.ToString("yyyy-MM-dd"),
+                    ToDate = toDate?.ToString("yyyy-MM-dd"),
+                    AvailableOnly = availableOnly
+                };
+
+                ViewBag.EventTypes = await _context.EventTypes.ToListAsync();
+                
                 var bookings = await query.OrderBy(b => b.EventDate).ToListAsync();
                 return View(bookings);
             } 
@@ -93,7 +163,6 @@ namespace EventEase.Controllers
                 TempData["ErrorMessage"] = "Failed to load bookings. Please try again later.";
                 return View(new List<BookingDetail>());
             }
-
         }
 
         // GET: Bookings/Create

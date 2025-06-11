@@ -31,14 +31,30 @@ namespace EventEase.Controllers
         // GET: Events
         public async Task<IActionResult> Index()
         {
-            var events = await _context.Events.Include(e => e.Venue).ToListAsync();
-            return View(events);
+            try
+            {
+                _logger.LogInformation("Fetching all events from the database.");
+                // var events = await _context.Events.Include(e => e.Venue).ToListAsync();
+                // return View(events);
+                var events = await _context.Events
+                    .Include(e => e.Venue)
+                    .Include(e => e.EventType)
+                    .AsNoTracking()
+                    .ToListAsync();
+                return View(events);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching events");
+                return StatusCode(500, "Internal server error");
+            }
         }
 
         // GET: Events/Create
         public IActionResult Create()
         {
             ViewData["VenueId"] = new SelectList(_context.Venues, "VenueId", "VenueName");
+            ViewData["EventTypeId"] = new SelectList(_context.EventTypes, "EventTypeId", "TypeName"); // Added this line
             ViewData["FormAction"] = "Create";
             ViewData["SubmitButtonText"] = "Create";
             return View(
@@ -64,6 +80,7 @@ namespace EventEase.Controllers
             }
 
             ViewData["VenueId"] = new SelectList(_context.Venues, "VenueId", "VenueName", @event.VenueId);
+            ViewData["EventTypeId"] = new SelectList(_context.EventTypes, "EventTypeId", "TypeName", @event.EventTypeId); // Added this line
             ViewData["FormAction"] = "Edit";
             ViewData["SubmitButtonText"] = "Save";
             return View("CreateEdit", @event);

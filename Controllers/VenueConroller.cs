@@ -12,22 +12,33 @@ namespace EventEase.Controllers
         private readonly ApplicationDbContext _context;
         private readonly IBlobStorageService _blobStorageService;
         private readonly BlobServiceClient _blobServiceClient;
+        private readonly ILogger<EventController> _logger;
 
         public VenueController(
-            ApplicationDbContext context, 
-            BlobServiceClient blobServiceClient, 
+            ILogger<EventController> logger,
+            ApplicationDbContext context,
+            BlobServiceClient blobServiceClient,
             IBlobStorageService blobStorageService
         )
         {
             _context = context;
             _blobStorageService = blobStorageService;
             _blobServiceClient = blobServiceClient;
+            _logger = logger;
         }
 
         // GET: Venues
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Venues.ToListAsync());
+            try
+            {
+                return View(await _context.Venues.ToListAsync());   
+            } catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while fetching venues.");
+                TempData["ErrorMessage"] = "An error occurred while fetching venues. Please try again later.";
+                return View(new List<Venue>());
+            }
         }
 
         // GET: Venues/Details/5
@@ -79,7 +90,7 @@ namespace EventEase.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(
-            [Bind("VenueId,VenueName,Location,Capacity,ImageUrl")] Venue venue
+            [Bind("VenueId,VenueName,Location,Capacity,ImageUrl,IsAvailable")] Venue venue
             , IFormFile? imageFile
         )
         {
@@ -107,7 +118,7 @@ namespace EventEase.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(
             int id, 
-            [Bind("VenueId,VenueName,Location,Capacity,ImageUrl")] Venue venue,
+            [Bind("VenueId,VenueName,Location,Capacity,ImageUrl,IsAvailable")] Venue venue,
             IFormFile? imageFile
         )
         {

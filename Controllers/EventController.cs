@@ -90,7 +90,7 @@ namespace EventEase.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(
-            [Bind("EventId,EventName,EventDate,EndDate,Description,VenueId")] Event @event
+            [Bind("EventId,EventName,EventDate,EndDate,Description,VenueId,EventTypeId")] Event @event
             , IFormFile? imageFile
         )
         {
@@ -112,6 +112,7 @@ namespace EventEase.Controllers
             }
 
             ViewData["VenueId"] = new SelectList(_context.Venues, "VenueId", "VenueName", @event.VenueId);
+            ViewData["EventTypeId"] = new SelectList(_context.EventTypes, "EventTypeId", "TypeName", @event.EventTypeId); // Added this line
             ViewData["FormAction"] = "Create";
             ViewData["SubmitButtonText"] = "Create";
             return View("CreateEdit", @event);
@@ -122,7 +123,7 @@ namespace EventEase.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(
             int id, 
-            [Bind("EventId,EventName,EventDate,EndDate,Description,VenueId")] Event @event
+            [Bind("EventId,EventName,EventDate,EndDate,Description,VenueId,EventTypeId")] Event @event
             , IFormFile? imageFile
         )
         {
@@ -162,6 +163,7 @@ namespace EventEase.Controllers
             }
 
             ViewData["VenueId"] = new SelectList(_context.Venues, "VenueId", "VenueName", @event.VenueId);
+            ViewData["EventTypeId"] = new SelectList(_context.EventTypes, "EventTypeId", "TypeName", @event.EventTypeId); // Added this line
             ViewData["FormAction"] = "Edit";
             ViewData["SubmitButtonText"] = "Save";
             return View("CreateEdit", @event);

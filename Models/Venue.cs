@@ -19,6 +19,10 @@ namespace EventEase.Models
         [StringLength(255)]
         public string ImageUrl { get; set; } = "https://via.placeholder.com/300?text=Venue+Image";
 
+        // Add a property to indicate if the venue is available for booking
+        [Display(Name = "Available")]
+        public bool IsAvailable { get; set; } = true;
+
         public ICollection<Event>? Events { get; set; }
     }
 }

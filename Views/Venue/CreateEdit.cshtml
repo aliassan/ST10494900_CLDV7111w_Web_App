@@ -33,17 +33,12 @@
                 <span asp-validation-for="Capacity" class="text-danger"></span>
             </div>
 
-            @* <div class="form-group">
-                <label asp-for="ImageUrl" class="control-label"></label>
-                <input asp-for="ImageUrl" class="form-control" placeholder="https://via.placeholder.com/300?text=Venue+Image" />
-                <span asp-validation-for="ImageUrl" class="text-danger"></span>
-                @if (!string.IsNullOrEmpty(Model.ImageUrl) && (ViewData["FormAction"] as string ?? string.Empty) == "Edit")
-                {
-                    <div class="mt-2">
-                        <img src="@Model.ImageUrl" alt="Venue Preview" style="max-height: 150px;" class="img-thumbnail" />
-                    </div>
-                }
-            </div> *@
+            <!-- Add this new form group for availability toggle -->
+            <div class="form-group form-check form-switch mt-3">
+                <input type="checkbox" class="form-check-input" asp-for="IsAvailable" />
+                <label class="form-check-label" asp-for="IsAvailable"></label>
+                <span asp-validation-for="IsAvailable" class="text-danger"></span>
+            </div>
 
             <div class="form-group mb-3">
                 <label asp-for="ImageUrl" class="control-label">Event Image</label>

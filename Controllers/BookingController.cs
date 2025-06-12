@@ -101,7 +101,8 @@ namespace EventEase.Controllers
             int? eventTypeId,
             DateTime? fromDate,
             DateTime? toDate,
-            bool? availableOnly)
+            // bool? availableOnly,
+            string availabilityFilter)
         {
             try 
             {
@@ -138,18 +139,31 @@ namespace EventEase.Controllers
                     query = query.Where(b => b.EndDate <= toDate);
                 }
 
-                if (availableOnly ?? false)
+                // if (availableOnly ?? false)
+                // {
+                //     query = query.Where(b => b.IsAvailable);
+                // }
+
+                switch (availabilityFilter)
                 {
-                    query = query.Where(b => b.IsAvailable);
+                    case "available":
+                        query = query.Where(b => b.IsAvailable);
+                        break;
+                    case "unavailable":
+                        query = query.Where(b => !b.IsAvailable);
+                        break;
+                    // "all" or default case - no filter needed
                 }
 
                 // Pass filter values to view to maintain state
-                ViewBag.CurrentFilters = new {
+                ViewBag.CurrentFilters = new
+                {
                     SearchString = searchString,
                     EventTypeId = eventTypeId,
                     FromDate = fromDate?.ToString("yyyy-MM-dd"),
                     ToDate = toDate?.ToString("yyyy-MM-dd"),
-                    AvailableOnly = availableOnly
+                    // AvailableOnly = availableOnly,
+                    AvailabilityFilter = availabilityFilter
                 };
 
                 ViewBag.EventTypes = await _context.EventTypes.ToListAsync();

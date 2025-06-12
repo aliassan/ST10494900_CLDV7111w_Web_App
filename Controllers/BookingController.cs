@@ -101,7 +101,6 @@ namespace EventEase.Controllers
             int? eventTypeId,
             DateTime? fromDate,
             DateTime? toDate,
-            // bool? availableOnly,
             string availabilityFilter)
         {
             try 
@@ -139,11 +138,6 @@ namespace EventEase.Controllers
                     query = query.Where(b => b.EndDate <= toDate);
                 }
 
-                // if (availableOnly ?? false)
-                // {
-                //     query = query.Where(b => b.IsAvailable);
-                // }
-
                 switch (availabilityFilter)
                 {
                     case "available":
@@ -152,7 +146,7 @@ namespace EventEase.Controllers
                     case "unavailable":
                         query = query.Where(b => !b.IsAvailable);
                         break;
-                    // "all" or default case - no filter needed
+                        // "all" or default case - no filter needed
                 }
 
                 // Pass filter values to view to maintain state

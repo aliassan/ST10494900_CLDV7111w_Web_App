@@ -163,7 +163,13 @@ namespace EventEase.Controllers
             }
 
             ViewData["VenueId"] = new SelectList(_context.Venues, "VenueId", "VenueName", @event.VenueId);
-            ViewData["EventTypeId"] = new SelectList(_context.EventTypes, "EventTypeId", "TypeName", @event.EventTypeId); // Added this line
+
+            //Include Event Type info in Event view select dropdown
+            ViewData["EventTypeId"] = new SelectList(
+                _context.EventTypes,
+                "EventTypeId", "TypeName",
+                @event.EventTypeId); // Added this line
+
             ViewData["FormAction"] = "Edit";
             ViewData["SubmitButtonText"] = "Save";
             return View("CreateEdit", @event);
